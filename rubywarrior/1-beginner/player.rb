@@ -1,6 +1,7 @@
 class Player
   @needs_rest = false
   @health = nil
+  @@minimum_required_health = (3 * (24/4)).floor
   def play_turn(warrior)
     # add your code here
     unless warrior.feel.empty?
@@ -25,7 +26,6 @@ class Player
   end
 
   def needs_rest?(warrior)
-    puts "health #{warrior.health} <= 7 : #{warrior.health <= 7 }"
     warrior.health <= 18 ? true : false
   end
   
