@@ -4,7 +4,11 @@ class Player
   def play_turn(warrior)
     # add your code here
     unless warrior.feel.empty?
-      warrior.attack!
+      if warrior.feel.enemy?      
+        warrior.attack! 
+      elsif warrior.feel.captive?
+        warrior.rescue!     
+      end
       @needs_rest = needs_rest?(warrior)
     else
       if @health and @health > warrior.health 
