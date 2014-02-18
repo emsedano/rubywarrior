@@ -11,27 +11,27 @@ class Player
         if @@captives <= 0
           warrior.attack! 
         else #lets rescue
-          change_direction(@@direction)
+          switch_direction
           warrior.walk! @@direction
         end
       elsif warrior.feel(@@direction).captive?
         @@captives = @@captives - 1
         warrior.rescue! @@direction     
       elsif warrior.feel(@@direction).wall?
-        change_direction(@@direction)
+        switch_direction
         warrior.walk! @@direction
       else
-        change_direction(@@direction, :forward) if @@captives <= 0
+        switch_direction if @@captives <= 0
         warrior.walk! @@direction
       end
       @needs_rest = needs_rest?(warrior)
     else
       if @health and @health > warrior.health 
         if warrior.health >= @@minimum_required_health
-          change_direction(@@direction, :forward)
+          lets_do_it
           warrior.walk! @@direction
         else
-          change_direction(@@direction, :backward)
+          oh_fuck
           warrior.walk! @@direction
         end
       elsif @needs_rest and warrior.feel.empty?
@@ -39,13 +39,13 @@ class Player
         @needs_rest = needs_rest?(warrior)
       elsif warrior.feel(@@direction).wall?
         
-        change_direction(@@direction, :backward)
+        oh_fuck
         warrior.walk! @@direction
       else
         if @@captives <= 0
-          change_direction(@@direction, :forward) 
+          lets_do_it
         else
-          change_direction(@@direction, :backward)
+          oh_fuck
         end 
         warrior.walk! @@direction
       end
@@ -59,13 +59,16 @@ class Player
     warrior.health <= @@minimum_required_health ? true : false
   end
 
-  def change_direction(direction, towards=nil)
-    if !towards
-      @@direction = direction == :forward ? :backward : :forward
-    else
-      @@direction = towards
-    end
+  def switch_direction
+    @@direction = @@direction == :forward ? :backward : :forward
+  end
 
+  def lets_do_it
+    @@direction = :forward
+  end
+
+  def oh_fuck
+    @@direction = :backward
   end
 
   
