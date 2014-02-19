@@ -5,27 +5,31 @@ class Player
   @@captives = 1
   @@direction = :forward
   def play_turn(warrior)
-    # add your code here
+    # unless next cell empty
     unless warrior.feel(@@direction).empty?
+      # if its a enemy
       if warrior.feel(@@direction).enemy?
-        if @@captives <= 0
-          warrior.attack! 
+        # evaluate if no capptives
+        if hear_captives? # no captives
+          warrior.attack!
         else #lets rescue
           switch_direction
           warrior.walk! @@direction
         end
+      
       elsif warrior.feel(@@direction).captive?
         @@captives = @@captives - 1
         warrior.rescue! @@direction     
+      
       elsif warrior.feel(@@direction).wall?
         switch_direction
         warrior.walk! @@direction
       else
-        switch_direction if @@captives <= 0
+        lets_do_it if !hear_captives?
         warrior.walk! @@direction
       end
       @needs_rest = needs_rest?(warrior)
-    else
+    else #walk or rest
       if @health and @health > warrior.health 
         if warrior.health >= @@minimum_required_health
           lets_do_it
@@ -38,7 +42,6 @@ class Player
         warrior.rest!
         @needs_rest = needs_rest?(warrior)
       elsif warrior.feel(@@direction).wall?
-        
         oh_fuck
         warrior.walk! @@direction
       else
@@ -69,6 +72,10 @@ class Player
 
   def oh_fuck
     @@direction = :backward
+  end
+
+  def hear_captives?
+    @@captives <= 0
   end
 
   
