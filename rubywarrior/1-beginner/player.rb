@@ -1,56 +1,55 @@
 class Player
   @needs_rest = false
   @health = nil
-  @@minimum_required_health = 17
-  @@captives = 1
+  @@minimum_required_health = 14
+  @@captives = 0
   @@direction = :forward
   def play_turn(warrior)
     # unless next cell empty
-    unless warrior.feel(@@direction).empty?
+    unless warrior.feel.empty?
+      
       # if its a enemy
-      if warrior.feel(@@direction).enemy?
+      if warrior.feel.enemy?
         # evaluate if no capptives
-        if hear_captives? # no captives
+        if !hear_captives? #and !@needs_rest # no captives
           warrior.attack!
         else #lets rescue
-          switch_direction
-          warrior.walk! @@direction
+          warrior.walk! :backward
         end
       
-      elsif warrior.feel(@@direction).captive?
+      elsif warrior.feel.captive?
         @@captives = @@captives - 1
-        warrior.rescue! @@direction     
+        warrior.rescue! 
       
-      elsif warrior.feel(@@direction).wall?
-        switch_direction
-        warrior.walk! @@direction
+      elsif warrior.feel.wall?
+        warrior.pivot!
       else
         lets_do_it if !hear_captives?
-        warrior.walk! @@direction
+        warrior.walk! 
       end
       @needs_rest = needs_rest?(warrior)
     else #walk or rest
+      
       if @health and @health > warrior.health 
-        if warrior.health >= @@minimum_required_health
-          lets_do_it
-          warrior.walk! @@direction
+        if !@needs_rest
+          warrior.walk! 
         else
-          oh_fuck
-          warrior.walk! @@direction
+          warrior.walk! :backward
         end
-      elsif @needs_rest and warrior.feel.empty?
-        warrior.rest!
-        @needs_rest = needs_rest?(warrior)
-      elsif warrior.feel(@@direction).wall?
-        oh_fuck
-        warrior.walk! @@direction
-      else
-        if @@captives <= 0
-          lets_do_it
+      elsif @needs_rest 
+        if warrior.feel.enemy?
+          warrior.walk!  
         else
-          oh_fuck
+          warrior.rest!
+        end
+        @needs_rest = needs_rest?(warrior)
+      else
+        if hear_captives? || warrior.feel.wall?
+          warrior.pivot
+        else
+          warrior.walk!
         end 
-        warrior.walk! @@direction
+        
       end
     end
     
@@ -59,7 +58,9 @@ class Player
   end
 
   def needs_rest?(warrior)
-    warrior.health <= @@minimum_required_health ? true : false
+    #(warrior.health <= @@minimum_required_health ) ||
+     (warrior.health / 3) <= 2 ?
+      true : false
   end
 
   def switch_direction
@@ -75,7 +76,7 @@ class Player
   end
 
   def hear_captives?
-    @@captives <= 0
+    @@captives > 0
   end
 
   
