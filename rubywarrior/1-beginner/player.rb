@@ -53,7 +53,6 @@ class Player
         
       end
     end
-    
     # set instance of current heald
     @health = warrior.health
   end
