@@ -6,6 +6,7 @@ class Player
   @@direction = :forward
   def play_turn(warrior)
     # unless next cell empty
+    being_attacked = false
     unless warrior.feel.empty?
       
       # if its a enemy
@@ -28,23 +29,23 @@ class Player
         warrior.walk! 
       end
       @needs_rest = needs_rest?(warrior)
-    else #walk or rest
-      
+    else 
+      # if being attacked
       if @health and @health > warrior.health 
-        if !@needs_rest
+        being_attacked = true
+        unless @needs_rest
           warrior.walk! 
         else
           warrior.walk! :backward
         end
-      elsif @needs_rest 
-        if warrior.feel.enemy?
-          warrior.walk!  
-        else
-          warrior.rest!
-        end
+        @needs_rest = needs_rest?(warrior)
+      elsif @needs_rest # if needs rest and not being attacked
+        
+        warrior.rest!
+        
         @needs_rest = needs_rest?(warrior)
       else
-        if hear_captives? || warrior.feel.wall?
+        if hear_captives?
           warrior.pivot
         else
           warrior.walk!
@@ -58,9 +59,8 @@ class Player
   end
 
   def needs_rest?(warrior)
-    #(warrior.health <= @@minimum_required_health ) ||
-     (warrior.health / 3) <= 2 ?
-      true : false
+    # if warrior resist at least 2 turns more
+    (warrior.health / 3) <= 2 ? true : false
   end
 
   def switch_direction
