@@ -6,8 +6,10 @@ class Player
   def play_turn(warrior)
     # unless next cell empty
     surroundings = warrior.look
+    surroundings_back = warrior.look :backward
 
     unless warrior.feel.empty?
+      puts "warrior feel empty will search for enemys"
       # if its a enemy
       if warrior.feel.enemy?
         # evaluate if no capptives
@@ -21,7 +23,11 @@ class Player
       end
       @needs_rest = needs_rest?(warrior)
     else 
-      if !surroundings[0].captive? && (surroundings[1].enemy? || surroundings[2].enemy? ) 
+      puts "warrior will walk"
+      if !surroundings_back[0].captive? && (surroundings_back[1].enemy? || surroundings_back[2].enemy? ) 
+        warrior.shoot! :backward
+      elsif !surroundings[0].captive? && (surroundings[1].enemy? || surroundings[2].enemy? ) 
+        
         warrior.shoot! 
       # if being attacked
       elsif @health and @health > warrior.health 
